@@ -10,16 +10,27 @@ async function searchWord() {
     document.getElementById('resultDisplay').innerText = 'Loading...';
 
     try {
-        const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+        const response = await fetch(`https://urban-dictionary-lookup.p.rapidapi.com/define/${word}`, {
+            headers: {
+                'X-RapidAPI-Key': 'YOUR_API_KEY',
+                'X-RapidAPI-Host': 'urban-dictionary-lookup.p.rapidapi.com'
+            }
+        });
         const data = await response.json();
         if (data.title) {
             document.getElementById('resultDisplay').innerText = `Error: ${data.message}`;
         } else {
+            const translation = languagePair === 'en-vi' ? await translateToVietnamese(word) : await translateToEnglish(word);
+            const meanings = data.list.map(item => `
+                <b>Definition:</b> ${item.definition}\n
+                <b>Example:</b> ${item.example}\n
+                <b>Upvotes:</b> ${item.thumbs_up}\n
+                <b>Downvotes:</b> ${item.thumbs_down}\n
+            `).join('\n\n');
             document.getElementById('resultDisplay').innerHTML = `
-                <pre><b>Word:</b> ${data[0].word}\n
-                <b>Definitions:</b> ${data[0].meanings[0].definitions[0].definition || 'No definitions found.'}\n
-                <b>Examples:</b> ${data[0].meanings[0].definitions[0].example || 'No examples found.'}\n
-                <b>Translation:</b> ${languagePair === 'en-vi' ? await translateToVietnamese(data[0].word) : await translateToEnglish(data[0].word)}</pre>
+                <pre><b>Word:</b> ${word}\n
+                ${meanings}\n
+                <b>Translation:</b> ${translation}</pre>
             `;
         }
     } catch (error) {
@@ -28,11 +39,11 @@ async function searchWord() {
 }
 
 async function translateToVietnamese(word) {
-    // Thay thế bằng API dịch thuật thực sự hoặc chức năng tự tạo
+    // Replace with a real translation API or function
     return 'Bản dịch sang Tiếng Việt';
 }
 
 async function translateToEnglish(word) {
-    // Thay thế bằng API dịch thuật thực sự hoặc chức năng tự tạo
+    // Replace with a real translation API or function
     return 'Translation to English';
 }
